@@ -444,7 +444,7 @@ export default function Home(){
               </div>
               <div className="rounded-2xl border border-zinc-200 p-5">
                 <div className="text-xs font-semibold text-zinc-500">RINGKASAN</div>
-                <div className="mt-2 text-sm">Benar: <b className="text-emerald-600">{result.correct}</b> • Salah: <b className="text-red-600">{result.incorrect}</b> • Kosong: <b>{result.unanswered}</b> • Total {result.totalQuestions}</div>
+                <div className="mt-2 text-sm">Benar: <b className="text-emerald-600">{result.correct}</b> • Salah: <b className="text-red-600">{result.incorrect}</b> {result.unanswered>0 && <span className="text-zinc-500"> (termasuk {result.unanswered} kosong)</span>} • Total {result.totalQuestions}</div>
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                   <div className="rounded-xl bg-zinc-50 border p-3 text-center"><div className="font-semibold">Structure</div><div className="text-lg font-bold">{result.structure.correct}/{result.structure.total}</div><div className="text-zinc-500">scaled {result.structure.scaled}/68</div></div>
                   <div className="rounded-xl bg-zinc-50 border p-3 text-center"><div className="font-semibold">Reading</div><div className="text-lg font-bold">{result.reading.correct}/{result.reading.total}</div><div className="text-zinc-500">scaled {result.reading.scaled}/68</div></div>
@@ -470,7 +470,7 @@ export default function Home(){
                   <div key={d.questionId} className={`rounded-2xl border p-5 ${d.isCorrect ? "bg-white border-zinc-200" : "bg-white border-zinc-200"}`}>
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-xs font-semibold tracking-widest text-zinc-500">SOAL {n} {d.passageTitle ? `• ${d.passageTitle}` : ""}</div>
-                      <span className={`text-xs px-2 py-1 rounded-full border font-medium ${d.isCorrect ? "bg-emerald-50 border-emerald-200 text-emerald-700" : d.userAnswer ? "bg-red-50 border-red-200 text-red-700" : "bg-zinc-50 border-zinc-200 text-zinc-600"}`}>{d.isCorrect ? "✓ Benar" : d.userAnswer ? "✗ Kurang tepat" : "○ Tidak dijawab"}</span>
+                      <span className={`text-xs px-2 py-1 rounded-full border font-medium ${d.isCorrect ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-red-50 border-red-200 text-red-700"}`}>{d.isCorrect ? "✓ Benar" : `✗ Salah${!d.userAnswer ? " (kosong)" : ""}`}</span>
                     </div>
                     <div className="mt-2 text-[15px] leading-relaxed">{d.question}</div>
                     <div className="mt-3 grid sm:grid-cols-2 gap-2">
@@ -486,7 +486,7 @@ export default function Home(){
                       })}
                     </div>
                     <div className="mt-3 text-sm">
-                      <div>Jawabanmu: <b>{d.userAnswer ?? "— (kosong)"}</b> • Kunci: <b className="text-emerald-700">{d.correctAnswer}</b></div>
+                      <div>Jawabanmu: <b className={!d.userAnswer ? "text-red-600" : ""}>{d.userAnswer ?? "— (kosong, dihitung salah)"}</b> • Kunci: <b className="text-emerald-700">{d.correctAnswer}</b></div>
                       <div className="mt-2 rounded-xl bg-zinc-50 border border-zinc-200 p-3 leading-relaxed">💡 {d.explanation}</div>
                     </div>
                   </div>

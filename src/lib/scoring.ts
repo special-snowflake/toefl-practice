@@ -57,13 +57,12 @@ export function calculateScore(test: TestData, answers: Record<string,string>): 
   const rTotal = allReadingQs.length;
   const total = sTotal + rTotal;
   const correct = sCorrect + rCorrect;
-  const unanswered = total - Object.keys(answers).filter(k=> answers[k] && ["A","B","C","D"].includes(answers[k])).length;
-  // Actually count unanswered correctly: questions without valid answer
   let answeredValid = 0;
   for (const q of test.structure.questions) if (answers[q.id] && ["A","B","C","D"].includes(answers[q.id])) answeredValid++;
   for (const {q} of allReadingQs) if (answers[q.id] && ["A","B","C","D"].includes(answers[q.id])) answeredValid++;
   const unansweredCount = total - answeredValid;
-  const incorrect = total - correct - unansweredCount;
+  // Empty answers ARE wrong — count as incorrect (TOEFL has no penalty distinction)
+  const incorrect = total - correct;
 
   const sScaled = 31 + Math.round((sCorrect / sTotal) * 37);
   const rScaled = 31 + Math.round((rCorrect / rTotal) * 37);
