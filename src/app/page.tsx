@@ -20,6 +20,8 @@ export default function Home(){
   const [phase, setPhase] = useState<Phase>("landing");
   const [name, setName] = useState("");
   const [nameErr, setNameErr] = useState("");
+  const [mode, setMode] = useState<"random"|"manual">("random");
+  const [manualId, setManualId] = useState("test-01");
   const [test, setTest] = useState<PublicTestData|null>(null);
   const [loading, setLoading] = useState(false);
   const [section, setSection] = useState<Section>("structure");
@@ -121,7 +123,8 @@ export default function Home(){
     setName(s);
     setLoading(true);
     try{
-      const r = await fetch("/api/test");
+      const url = mode==="manual" ? `/api/test?id=${manualId}` : "/api/test";
+      const r = await fetch(url);
       const data = await r.json();
       if(!r.ok) throw new Error(data.error||"Gagal memuat soal");
       setTest(data);
@@ -210,7 +213,7 @@ export default function Home(){
             <span className="font-semibold tracking-tight">TOEFL Practice</span>
             <span className="hidden sm:inline text-xs ml-2 px-2 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">Simulasi Latihan</span>
           </div>
-          <div className="text-xs text-zinc-500 hidden sm:block">Bukan tes resmi ETS • Tanpa login • Tanpa penyimpanan data</div>
+          <div className="flex items-center gap-3"><a href="/materi" className="text-xs px-3 py-1.5 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 hidden sm:inline-flex">📖 Materi</a><div className="text-xs text-zinc-500 hidden lg:block">Bukan tes resmi ETS • Tanpa login</div></div>
         </div>
       </header>
 
@@ -242,7 +245,8 @@ export default function Home(){
                 </div>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <button onClick={()=> setPhase("name")} className="px-6 py-3 rounded-xl bg-zinc-900 text-white font-medium hover:bg-black transition">Mulai Latihan →</button>
-                  <a href="#detail" className="px-6 py-3 rounded-xl bg-white border border-zinc-200 font-medium hover:bg-zinc-50">Pelajari dulu</a>
+                  <a href="/materi" className="px-6 py-3 rounded-xl bg-white border border-zinc-200 font-medium hover:bg-zinc-50">📖 Materi Lengkap</a>
+                  <a href="#detail" className="px-6 py-3 rounded-xl bg-white border border-zinc-200 font-medium hover:bg-zinc-50">Detail</a>
                 </div>
                 <p className="mt-3 text-xs text-zinc-500">Nama hanya dipakai selama sesi. Tidak ada database. Tutup tab = data hilang.</p>
               </div>
@@ -274,6 +278,28 @@ export default function Home(){
               <input value={name} onChange={e=> {setName(e.target.value); setNameErr("");}} placeholder="Contoh: Budi" maxLength={40} className="mt-1 w-full rounded-xl border border-zinc-300 px-3 py-3 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900" />
               {nameErr && <div className="text-xs text-red-600 mt-2">{nameErr}</div>}
               <div className="text-xs text-zinc-400 mt-1">{name.length}/40</div>
+            </div>
+            <div className="mt-5">
+              <div className="text-sm font-medium">Mode Tes</div>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <button onClick={()=> setMode("random")} className={`px-3 py-2.5 rounded-xl border text-sm font-medium ${mode==="random" ? "bg-zinc-900 text-white border-zinc-900" : "bg-white border-zinc-200 hover:bg-zinc-50"}`}>🎲 Acak</button>
+                <button onClick={()=> setMode("manual")} className={`px-3 py-2.5 rounded-xl border text-sm font-medium ${mode==="manual" ? "bg-zinc-900 text-white border-zinc-900" : "bg-white border-zinc-200 hover:bg-zinc-50"}`}>🎯 Pilih Manual</button>
+              </div>
+              {mode==="manual" && (
+                <select value={manualId} onChange={e=> setManualId(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 px-3 py-2.5 text-sm bg-white">
+                  <option value="test-01">Test 01 — Coral Reef + Javanese Kingdoms</option>
+                  <option value="test-02">Test 02 — Photosynthesis + Printing Press</option>
+                  <option value="test-03">Test 03 — Urbanization + Deep-Sea Vents</option>
+                  <option value="test-04">Test 04 — Monsoon + Golden Age Painting</option>
+                  <option value="test-05">Test 05 — Ant Colony + Inflation</option>
+                  <option value="test-06">Test 06 — Memory + Volcanic Activity</option>
+                  <option value="test-07">Test 07 — Mangrove + Greek Democracy</option>
+                  <option value="test-08">Test 08 — Water Cycle + Baroque Music</option>
+                  <option value="test-09">Test 09 — Desert Plants + Industrial Rev</option>
+                  <option value="test-10">Test 10 — Ocean Currents + Borobudur</option>
+                </select>
+              )}
+              <div className="mt-1 text-xs text-zinc-500">{mode==="random" ? "Soal dipilih acak dari 10 variasi setiap mulai." : "Kamu pilih paket soal sendiri — cocok untuk fokus materi tertentu."} • <a href="/materi" className="underline">Lihat Materi</a></div>
             </div>
             <div className="mt-6 flex gap-3">
               <button onClick={()=> setPhase("landing")} className="flex-1 py-3 rounded-xl border border-zinc-200 bg-white font-medium">Kembali</button>
@@ -451,7 +477,7 @@ export default function Home(){
                 </div>
               </div>
               <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed">
-                <b>Apa arti skor ini?</b><br/>Skor dihitung dari persentase benar → scaled 31–68 per section → dipetakan ke 310–677. Ini untuk latihan saja. Untuk prediksi resmi, tetap ikut tes ETS yang sebenarnya.
+                <b>Apa arti skor ini?</b><br/>Skor = <b>310 + (total benar / total soal) × 367</b> → 310–677. Structure dan Reading masing-masing scaled 31–68. Contoh: <b>12/20 Structure + 0/20 Reading = 12/40 (30%) → 310+110 ≈ 419</b>. Kosong dihitung <b>salah</b> (tanpa minus), jadi 0/20 Reading narik skor turun banyak. Untuk prediksi resmi, tetap ikut tes ETS.
               </div>
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
