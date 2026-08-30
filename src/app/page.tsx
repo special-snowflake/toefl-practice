@@ -56,6 +56,13 @@ export default function Home(){
   },[]);
   useEffect(()=> ()=> { if(timerRef.current) window.clearInterval(timerRef.current); },[]);
 
+  // scroll to top when result is shown (explanations)
+  useEffect(()=>{
+    if(phase==="result"){
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  },[phase]);
+
   // auto-submit on timeout
   useEffect(()=>{
     if(phase!=="test" || secLeft!==0) return;
@@ -169,6 +176,8 @@ export default function Home(){
       setResult(data);
       setPhase("result");
       clearSession();
+      // ensure visible top of result / explanations immediately
+      setTimeout(()=> window.scrollTo({ top: 0, behavior: "smooth" }), 50);
     } catch(e:unknown){
       alert(e instanceof Error? e.message : "Gagal submit");
       // restart timer for reading if was there
